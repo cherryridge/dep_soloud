@@ -1,0 +1,123 @@
+﻿name: Build on Windows
+
+on:
+    workflow_call:
+        inputs:
+            tag-name:
+                type: string
+                required: true
+        outputs:
+            runid:
+                value: ${{github.run_id}}
+    workflow_dispatch:
+        inputs:
+            tag-name:
+                type: string
+                required: true
+
+jobs:
+    x64:
+        runs-on: windows-latest
+        steps:
+
+          - name: Checkout This Repo
+            uses: actions/checkout@v4
+            with:
+                ref: main
+
+          - name: Checkout SoLoud Source Code
+            shell: pwsh
+            run: |
+                Invoke-WebRequest -Uri "https://github.com/jarikomppa/soloud/archive/refs/tags/${{inputs.tag-name}}.zip" -OutFile "./${{inputs.tag-name}}.zip"
+                Expand-Archive -Path "./${{inputs.tag-name}}.zip" -DestinationPath "." -Force
+
+          - name: Download GENie and Generate Build Files
+            shell: pwsh
+            run: |
+                cd soloud-${{inputs.tag-name}}\build
+                cp ..\..\genie.lua .
+                Invoke-WebRequest -Uri "https://github.com/bkaradzic/bx/raw/master/tools/bin/windows/genie.exe" -OutFile "genie.exe"
+                .\genie --with-xaudio2 --with-wasapi --platform=x64 vs2022
+
+          - name: Build Windows x64 Debug and Compress Product
+            shell: pwsh
+            run: |
+                cd soloud-${{inputs.tag-name}}\build\vs2022
+                msbuild SoloudStatic.vcxproj /p:Configuration=Debug /p:Platform=x64
+                cd ..\..\lib
+                echo ${{inputs.tag-name}} >> VERSION.txt
+                mkdir temp\include\soloud
+                cp -r ..\include\* temp\include\soloud
+                7z a soloud_windows_x64_debug.7z soloud.lib soloud.pdb temp\include VERSION.txt
+
+          - name: Build Windows x64 Release and Compress Product
+            shell: pwsh
+            run: |
+                cd soloud-${{inputs.tag-name}}\build\vs2022
+                msbuild SoloudStatic.vcxproj /p:Configuration=Release /p:Platform=x64
+                cd ..\..\lib
+                echo ${{inputs.tag-name}} >> VERSION.txt
+                mkdir temp\include\soloud
+                cp -r ..\include\* temp\include\soloud
+                7z a soloud_windows_x64_release.7z soloud.lib temp\include VERSION.txt
+
+          - name: Upload Archive
+            uses: actions/upload-artifact@v4
+            with:
+                name: soloud_windows_x64
+                path: |
+                    soloud-${{inputs.tag-name}}/lib/*.7z
+                retention-days: 7
+
+    arm64:
+        runs-on: windows-latest
+        steps:
+
+          - name: Checkout This Repo
+            uses: actions/checkout@v4
+            with:
+                ref: main
+
+          - name: Checkout SoLoud Source Code
+            shell: pwsh
+            run: |
+                Invoke-WebRequest -Uri "https://github.com/jarikomppa/soloud/archive/refs/tags/${{inputs.tag-name}}.zip" -OutFile "./${{inputs.tag-name}}.zip"
+                Expand-Archive -Path "./${{inputs.tag-name}}.zip" -DestinationPath "." -Force
+
+          - name: Download GENie and Generate Build Files
+            shell: pwsh
+            run: |
+                cd soloud-${{inputs.tag-name}}\build
+                cp ..\..\genie.lua .
+                Invoke-WebRequest -Uri "https://github.com/bkaradzic/bx/raw/master/tools/bin/windows/genie.exe" -OutFile "genie.exe"
+                .\genie --with-xaudio2 --with-wasapi --platform=arm64 vs2022
+
+          - name: Build Windows x64 Debug and Compress Product
+            shell: pwsh
+            run: |
+                cd soloud-${{inputs.tag-name}}\build\vs2022
+                msbuild SoloudStatic.vcxproj /p:Configuration=Debug /p:Platform=arm64
+                cd ..\..\lib
+                echo ${{inputs.tag-name}} >> VERSION.txt
+                mkdir temp\include\soloud
+                cp -r ..\include\* temp\include\soloud
+                7z a soloud_windows_x64_debug.7z soloud.lib soloud.pdb temp\include VERSION.txt
+
+          - name: Build Windows x64 Release and Compress Product
+            shell: pwsh
+            run: |
+                cd soloud-${{inputs.tag-name}}\build\vs2022
+                msbuild SoloudStatic.vcxproj /p:Configuration=Release /p:Platform=arm64
+                cd ..\..\lib
+                echo ${{inputs.tag-name}} >> VERSION.txt
+                mkdir temp\include\soloud
+                cp -r ..\include\* temp\include\soloud
+                7z a soloud_windows_x64_release.7z soloud.lib temp\include VERSION.txt
+
+          - name: Upload Archive
+            uses: actions/upload-artifact@v4
+            with:
+                name: soloud_windows_x64
+                path: |
+                    soloud-${{inputs.tag-name}}/lib/*.7z
+                retention-days: 7
