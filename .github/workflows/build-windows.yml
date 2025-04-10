@@ -54,8 +54,8 @@ jobs:
                 echo ${{inputs.tag-name}} >> VERSION.txt
                 mkdir temp\include\soloud
                 cp -r soloud-${{inputs.tag-name}}\include\* temp\include\soloud
-                7z a soloud_windows_x64_debug.7z soloud-${{inputs.tag-name}}\lib\soloud_static_x64_d.lib soloud-${{inputs.tag-name}}\lib\soloud_static_x64_d.pdb temp\include VERSION.txt
-                7z a soloud_windows_x64_release.7z soloud-${{inputs.tag-name}}\lib\soloud_static_x64.lib temp\include VERSION.txt
+                7z a soloud_windows_x64_debug.7z .\soloud-${{inputs.tag-name}}\lib\soloud_static_x64_d.lib .\soloud-${{inputs.tag-name}}\lib\soloud_static_x64_d.pdb .\temp\include VERSION.txt
+                7z a soloud_windows_x64_release.7z .\soloud-${{inputs.tag-name}}\lib\soloud_static_x64.lib .\temp\include VERSION.txt
 
           - name: Upload Archive
             uses: actions/upload-artifact@v4
