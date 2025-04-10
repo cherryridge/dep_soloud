@@ -25,6 +25,9 @@ jobs:
             with:
                 ref: main
 
+          - name: Get MSBuild
+            uses: microsoft/setup-msbuild@v2
+
           - name: Checkout SoLoud Source Code
             shell: pwsh
             run: |
