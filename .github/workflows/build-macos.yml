@@ -1,1 +1,26 @@
-﻿
+﻿name: Build on MacOS
+
+on:
+    workflow_call:
+        inputs:
+            tag-name:
+                type: string
+                required: true
+        outputs:
+            runid:
+                value: ${{github.run_id}}
+    workflow_dispatch:
+        inputs:
+            tag-name:
+                type: string
+                required: true
+
+jobs:
+    x64:
+        runs-on: macos-latest
+        steps:
+
+          - name: Checkout This Repo
+            uses: actions/checkout@v4
+            with:
+                ref: main
