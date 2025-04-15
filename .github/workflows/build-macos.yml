@@ -16,55 +16,7 @@ on:
                 required: true
 
 jobs:
-    x64:
-        runs-on: macos-13
-        steps:
-
-          - name: Checkout This Repo
-            uses: actions/checkout@v4
-            with:
-                ref: main
-
-          - name: Checkout SoLoud Source Code
-            shell: bash
-            run: |
-                curl -LO "https://github.com/jarikomppa/soloud/archive/refs/tags/${{inputs.tag-name}}.zip"
-                unzip ${{inputs.tag-name}}.zip
-
-          - name: Download GENie and Generate Build Files
-            shell: bash
-            run: |
-                cd soloud-${{inputs.tag-name}}/build
-                curl -LO "https://github.com/bkaradzic/bx/raw/master/tools/bin/darwin/genie"
-                chmod +x genie
-                ./genie --with-coreaudio ninja
-
-          - name: Build MacOS x64
-            shell: bash
-            run: |
-                cd soloud-${{inputs.tag-name}}/build/ninja
-                ls
-                ninja -C debug64 SoloudStatic
-                ninja -C release64 SoloudStatic
-
-          - name: Compress Product
-            shell: bash
-            run: |
-                echo ${{inputs.tag-name}} >> VERSION.txt
-                mkdir -p temp/include/soloud
-                cp -a soloud-${{inputs.tag-name}}/include/* temp/include/soloud
-                7z a soloud_macos_x64_debug.7z ./soloud-${{inputs.tag-name}}/lib/libsoloud_static_x64_d.a ./temp/include VERSION.txt
-                7z a soloud_macos_x64_release.7z ./soloud-${{inputs.tag-name}}/lib/libsoloud_static_x64.a ./temp/include VERSION.txt
-
-          - name: Upload Archive
-            uses: actions/upload-artifact@v4
-            with:
-                name: soloud_macos_x64
-                path: |
-                    *.7z
-                retention-days: 7
-
-    arm64:
+    build:
         runs-on: macos-latest
         steps:
 
@@ -91,9 +43,23 @@ jobs:
             shell: bash
             run: |
                 cd soloud-${{inputs.tag-name}}/build/ninja
+                ninja -C debug SoloudStatic
+                ninja -C release SoloudStatic
+                cd ../../lib
                 ls
-                ninja -C debug64 SoloudStatic
-                ninja -C release64 SoloudStatic
+
+          - name: Build MacOS x64
+            shell: bash
+            run: |
+                cd soloud-${{inputs.tag-name}}/build
+                rm -rf ninja
+                ./genie --with-coreaudio --platform=x64 ninja
+                cd ninja
+                ls
+                arch -x86_64 ninja -C debug SoloudStatic
+                arch -x86_64 ninja -C release SoloudStatic
+                cd ../../lib
+                ls
 
           - name: Compress Product
             shell: bash
