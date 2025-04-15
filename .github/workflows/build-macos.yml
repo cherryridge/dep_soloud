@@ -45,7 +45,7 @@ jobs:
                 ./genie --with-coreaudio xcode15
                 cd xcode15
                 xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Debug ARCHS=arm64 clean build
-                cd debug/Debug/SoloudStatic/SoloudStatic.build
+                cd debug/Debug/SoloudStatic/EagerLinkingTBDs
                 ls
                 cd Debug
                 ls
