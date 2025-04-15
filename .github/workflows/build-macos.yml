@@ -38,6 +38,20 @@ jobs:
                 curl -LO "https://github.com/bkaradzic/bx/raw/master/tools/bin/darwin/genie"
                 chmod +x genie
 
+          - name: Build MacOS arm64
+            shell: bash
+            run: |
+                cd soloud-${{inputs.tag-name}}/build
+                ./genie --with-coreaudio xcode15
+                cd xcode15
+                xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Debug ARCHS=arm64 clean build
+                ls
+                cd ../../lib
+                ls
+                mv ../../lib/libsoloud_static.a ../../lib/libsoloud_static_arm64_d.a
+                xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Release ARCHS=arm64 clean build
+                mv ../../lib/libsoloud_static.a ../../lib/libsoloud_static_arm64.a
+
           - name: Build MacOS x64
             shell: bash
             run: |
@@ -55,17 +69,6 @@ jobs:
                 cd ../../lib
                 ls
                 hdiewfo
-
-          - name: Build MacOS arm64
-            shell: bash
-            run: |
-                cd soloud-${{inputs.tag-name}}/build
-                ./genie --with-coreaudio ninja
-                cd ninja
-                ninja -C debug SoloudStatic
-                mv ../../lib/libsoloud_static.a ../../lib/libsoloud_static_arm64_d.a
-                ninja -C release SoloudStatic
-                mv ../../lib/libsoloud_static.a ../../lib/libsoloud_static_arm64.a
 
           - name: Compress Product
             shell: bash
