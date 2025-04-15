@@ -45,6 +45,7 @@ jobs:
                 ./genie --with-coreaudio xcode15
                 cd xcode15
                 xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Debug ARCHS=arm64 -derivedDataPath arm64.debug clean build
+                cd arm64.debug
                 ls
                 fedwsgd
                 xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Release ARCHS=arm64 clean build
