@@ -38,6 +38,24 @@ jobs:
                 curl -LO "https://github.com/bkaradzic/bx/raw/master/tools/bin/darwin/genie"
                 chmod +x genie
 
+          - name: Build MacOS x64
+            shell: bash
+            run: |
+                cd soloud-${{inputs.tag-name}}/build
+                rm -rf ninja
+                ./genie --with-coreaudio --platform=x64 ninja
+                arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+                arch -x86_64 env \
+                    HOMEBREW_BUILD_FROM_SOURCE=1 \
+                    CFLAGS="-arch x86_64" \
+                    CXXFLAGS="-arch x86_64" \
+                    /usr/local/bin/brew install ninja
+                arch -x86_64 ninja -C debug64 SoloudStatic
+                arch -x86_64 ninja -C release64 SoloudStatic
+                cd ../../lib
+                ls
+                hdiewfo
+
           - name: Build MacOS arm64
             shell: bash
             run: |
@@ -48,20 +66,6 @@ jobs:
                 mv ../../lib/libsoloud_static.a ../../lib/libsoloud_static_arm64_d.a
                 ninja -C release SoloudStatic
                 mv ../../lib/libsoloud_static.a ../../lib/libsoloud_static_arm64.a
-
-          - name: Build MacOS x64
-            shell: bash
-            run: |
-                cd soloud-${{inputs.tag-name}}/build
-                rm -rf ninja
-                ./genie --with-coreaudio --platform=x64 ninja
-                arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-                arch -x86_64 /usr/local/bin/brew install ninja
-                arch -x86_64 ninja -C debug64 SoloudStatic
-                arch -x86_64 ninja -C release64 SoloudStatic
-                cd ../../lib
-                ls
-                hdiewfo
 
           - name: Compress Product
             shell: bash
