@@ -45,10 +45,9 @@ jobs:
                 ./genie --with-coreaudio xcode15
                 cd xcode15
                 xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Debug ARCHS=arm64 clean build
+                cd debug
                 ls
-                cd ../../lib
-                ls
-                mv ../../lib/libsoloud_static.a ../../lib/libsoloud_static_arm64_d.a
+                fedwsgd
                 xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Release ARCHS=arm64 clean build
                 mv ../../lib/libsoloud_static.a ../../lib/libsoloud_static_arm64.a
 
@@ -68,7 +67,6 @@ jobs:
                 arch -x86_64 ninja -C release64 SoloudStatic
                 cd ../../lib
                 ls
-                hdiewfo
 
           - name: Compress Product
             shell: bash
