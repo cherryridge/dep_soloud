@@ -44,10 +44,7 @@ jobs:
                 cd soloud-${{inputs.tag-name}}/build
                 ./genie --with-coreaudio xcode15
                 cd xcode15
-                xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Debug ARCHS=arm64 clean build
-                cd debug/Debug/SoloudStatic/EagerLinkingTBDs
-                ls
-                cd Debug
+                xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Debug ARCHS=arm64 -derivedDataPath arm64.debug clean build
                 ls
                 fedwsgd
                 xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Release ARCHS=arm64 clean build
