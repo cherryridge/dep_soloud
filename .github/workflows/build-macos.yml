@@ -48,8 +48,6 @@ jobs:
                 mv ../../lib/libsoloud_static.a ../../lib/libsoloud_static_arm64_d.a
                 ninja -C release SoloudStatic
                 mv ../../lib/libsoloud_static.a ../../lib/libsoloud_static_arm64.a
-                cd ../../lib
-                ls
 
           - name: Build MacOS x64
             shell: bash
@@ -57,6 +55,7 @@ jobs:
                 cd soloud-${{inputs.tag-name}}/build
                 rm -rf ninja
                 ./genie --with-coreaudio --platform=x64 ninja
+                arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
                 arch -x86_64 /usr/local/bin/brew install ninja
                 arch -x86_64 ninja -C debug64 SoloudStatic
                 arch -x86_64 ninja -C release64 SoloudStatic
