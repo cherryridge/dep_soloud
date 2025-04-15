@@ -47,9 +47,7 @@ jobs:
                 xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Debug ARCHS=arm64 clean build
                 cd debug/Debug/SoloudStatic/SoloudStatic.build
                 ls
-                cd ../EagerLinkingTBDs
-                ls
-                cd ../XCBuildData
+                cd Debug
                 ls
                 fedwsgd
                 xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Release ARCHS=arm64 clean build
