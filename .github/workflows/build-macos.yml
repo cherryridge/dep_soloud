@@ -37,7 +37,7 @@ jobs:
                 cd soloud-${{inputs.tag-name}}/build
                 curl -LO "https://github.com/bkaradzic/bx/raw/master/tools/bin/darwin/genie"
                 chmod +x genie
-                ./genie --with-coreaudio ninja
+                ./genie --with-coreaudio --platform=x64 ninja
 
           - name: Install Dependencies
             shell: bash
