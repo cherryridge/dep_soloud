@@ -43,13 +43,11 @@ jobs:
             shell: bash
             run: |
                 cd soloud-${{inputs.tag-name}}/build/xcode15
-                xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Debug ARCHS=x64 clean build
-                cd ../..
-                ls
-                cd lib
+                xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Debug ARCHS=x86_64 clean build
+                cd ../../lib
                 ls
                 mv ../../lib/libsoloud_static.a ../../lib/libsoloud_static_x64_d.a
-                xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Release ARCHS=x64 clean build
+                xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Release ARCHS=x86_64 clean build
                 mv ../../lib/libsoloud_static.a ../../lib/libsoloud_static_x64.a
 
           - name: Build MacOS arm64
