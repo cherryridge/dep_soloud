@@ -42,6 +42,7 @@ jobs:
           - name: Build MacOS x64
             shell: bash
             run: |
+                cd soloud-${{inputs.tag-name}}/build/xcode15
                 xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Debug ARCHS=x64 clean build
                 cd ../../lib
                 ls
