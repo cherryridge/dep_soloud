@@ -31,42 +31,32 @@ jobs:
                 curl -LO "https://github.com/jarikomppa/soloud/archive/refs/tags/${{inputs.tag-name}}.zip"
                 unzip ${{inputs.tag-name}}.zip
 
-          - name: Download GENie
+          - name: Download GENie and Generate Build Files
             shell: bash
             run: |
                 cd soloud-${{inputs.tag-name}}/build
                 curl -LO "https://github.com/bkaradzic/bx/raw/master/tools/bin/darwin/genie"
                 chmod +x genie
-
-          - name: Build MacOS arm64
-            shell: bash
-            run: |
-                cd soloud-${{inputs.tag-name}}/build
                 ./genie --with-coreaudio xcode15
-                cd xcode15
-                xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Debug ARCHS=arm64 clean build
-                cd ../../lib
-                ls
-                fedwsgd
-                xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Release ARCHS=arm64 clean build
-                mv ../../lib/libsoloud_static.a ../../lib/libsoloud_static_arm64.a
 
           - name: Build MacOS x64
             shell: bash
             run: |
-                cd soloud-${{inputs.tag-name}}/build
-                rm -rf ninja
-                ./genie --with-coreaudio --platform=x64 ninja
-                arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-                arch -x86_64 env \
-                    HOMEBREW_BUILD_FROM_SOURCE=1 \
-                    CFLAGS="-arch x86_64" \
-                    CXXFLAGS="-arch x86_64" \
-                    /usr/local/bin/brew install ninja
-                arch -x86_64 ninja -C debug64 SoloudStatic
-                arch -x86_64 ninja -C release64 SoloudStatic
+                xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Debug ARCHS=x64 clean build
                 cd ../../lib
                 ls
+                mv ../../lib/libsoloud_static.a ../../lib/libsoloud_static_x64_d.a
+                xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Release ARCHS=x64 clean build
+                mv ../../lib/libsoloud_static.a ../../lib/libsoloud_static_x64.a
+
+          - name: Build MacOS arm64
+            shell: bash
+            run: |
+                cd soloud-${{inputs.tag-name}}/build/xcode15
+                xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Debug ARCHS=arm64 clean build
+                mv ../../lib/libsoloud_static.a ../../lib/libsoloud_static_arm64_d.a
+                xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Release ARCHS=arm64 clean build
+                mv ../../lib/libsoloud_static.a ../../lib/libsoloud_static_arm64.a
 
           - name: Compress Product
             shell: bash
@@ -74,13 +64,21 @@ jobs:
                 echo ${{inputs.tag-name}} >> VERSION.txt
                 mkdir -p temp/include/soloud
                 cp -a soloud-${{inputs.tag-name}}/include/* temp/include/soloud
-                7z a soloud_macos_arm64_debug.7z ./soloud-${{inputs.tag-name}}/lib/libsoloud_static_x64_d.a ./temp/include VERSION.txt
-                7z a soloud_macos_arm64_release.7z ./soloud-${{inputs.tag-name}}/lib/libsoloud_static_x64.a ./temp/include VERSION.txt
+                7z a soloud_macos_x64_debug.7z ./soloud-${{inputs.tag-name}}/lib/libsoloud_static_x64_d.a ./temp/include VERSION.txt
+                7z a soloud_macos_x64_release.7z ./soloud-${{inputs.tag-name}}/lib/libsoloud_static_x64.a ./temp/include VERSION.txt
+                7z a soloud_macos_arm64_debug.7z ./soloud-${{inputs.tag-name}}/lib/libsoloud_static_arm64_d.a ./temp/include VERSION.txt
+                7z a soloud_macos_arm64_release.7z ./soloud-${{inputs.tag-name}}/lib/libsoloud_static_arm64.a ./temp/include VERSION.txt
 
-          - name: Upload Archive
+          - name: Upload Archive x64
+            uses: actions/upload-artifact@v4
+            with:
+                name: soloud_macos_x64
+                path: soloud_macos_x64_debug.7z, soloud_macos_x64_release.7z
+                retention-days: 7
+
+          - name: Upload Archive arm64
             uses: actions/upload-artifact@v4
             with:
                 name: soloud_macos_arm64
-                path: |
-                    *.7z
+                path: soloud_macos_arm64_debug.7z, soloud_macos_arm64_release.7z
                 retention-days: 7
