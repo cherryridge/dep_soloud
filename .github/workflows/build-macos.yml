@@ -63,6 +63,9 @@ jobs:
                 echo ${{inputs.tag-name}} >> VERSION.txt
                 mkdir -p temp/include/soloud
                 cp -a soloud-${{inputs.tag-name}}/include/* temp/include/soloud
+                cd soloud-${{inputs.tag-name}}/lib
+                ls
+                cd ../..
                 7z a soloud_macos_x64_debug.7z ./soloud-${{inputs.tag-name}}/lib/libsoloud_static_x64_d.a ./temp/include VERSION.txt
                 7z a soloud_macos_x64_release.7z ./soloud-${{inputs.tag-name}}/lib/libsoloud_static_x64.a ./temp/include VERSION.txt
                 7z a soloud_macos_arm64_debug.7z ./soloud-${{inputs.tag-name}}/lib/libsoloud_static_arm64_d.a ./temp/include VERSION.txt
