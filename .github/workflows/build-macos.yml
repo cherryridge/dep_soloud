@@ -81,7 +81,3 @@ jobs:
                 name: soloud_macos_arm64
                 path: soloud_macos_arm64*.7z
                 retention-days: 7
-
-          - name: error
-            shell: bash
-            run: fjweiofweuh
