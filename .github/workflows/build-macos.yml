@@ -72,12 +72,12 @@ jobs:
             uses: actions/upload-artifact@v4
             with:
                 name: soloud_macos_x64
-                path: soloud_macos_x64_debug.7z, soloud_macos_x64_release.7z
+                path: soloud_macos_x64*.7z
                 retention-days: 7
 
           - name: Upload Archive arm64
             uses: actions/upload-artifact@v4
             with:
                 name: soloud_macos_arm64
-                path: soloud_macos_arm64_debug.7z, soloud_macos_arm64_release.7z
+                path: soloud_macos_arm64*.7z
                 retention-days: 7
