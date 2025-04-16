@@ -34,19 +34,51 @@ jobs:
                 Invoke-WebRequest -Uri "https://github.com/jarikomppa/soloud/archive/refs/tags/${{inputs.tag-name}}.zip" -OutFile "./${{inputs.tag-name}}.zip"
                 Expand-Archive -Path "./${{inputs.tag-name}}.zip" -DestinationPath "." -Force
 
-          - name: Download GENie and Generate Build Files
+          - name: Download GENie
             shell: pwsh
             run: |
                 cd soloud-${{inputs.tag-name}}\build
                 Invoke-WebRequest -Uri "https://github.com/bkaradzic/bx/raw/master/tools/bin/windows/genie.exe" -OutFile "genie.exe"
-                .\genie --with-xaudio2 --with-wasapi --platform=x64 vs2022
 
           - name: Build Windows x64
             shell: pwsh
             run: |
-                cd soloud-${{inputs.tag-name}}\build\vs2022
+                cd soloud-${{inputs.tag-name}}\build
+                .\genie --with-xaudio2 --with-wasapi --platform=x64 vs2022
+                cd vs2022
                 msbuild SoloudStatic.vcxproj /p:Configuration=Debug /p:Platform=x64
                 msbuild SoloudStatic.vcxproj /p:Configuration=Release /p:Platform=x64
+
+          - name: Patch dr_mp3.h
+            shell: pwsh
+            run: |
+                cd soloud-${{inputs.tag-name}}\src\audiosource\wav
+                (Get-Content "dr_mp3.h" -Raw) -replace 'static\s+const\s+drmp3_f4\s+g_scale\s*=\s*\{[^}]+\};', "const float _arm_fix_temp[4] = { 1.0f / 32768.0f, 1.0f / 32768.0f, 1.0f / 32768.0f, 1.0f / 32768.0f }; static const drmp3_f4 g_scale; memcpy((void*)&g_scale.n128_f32, _arm_fix_temp, sizeof(g_scale.n128_f32));" | Set-Content "dr_mp3.h"
+
+          - name: Build Windows arm64
+            shell: pwsh
+            run: |
+                cd soloud-${{inputs.tag-name}}\build
+                .\genie --with-xaudio2 --with-wasapi --platform=ARM64 vs2022
+                cd vs2022
+                [xml]$xml = Get-Content SoloudStatic.vcxproj
+                $ns = New-Object System.Xml.XmlNamespaceManager($xml.NameTable)
+                $ns.AddNamespace("msb", "http://schemas.microsoft.com/developer/msbuild/2003")
+                $node = $xml.SelectSingleNode('//msb:ItemDefinitionGroup[@Condition="''$(Configuration)|$(Platform)''==''Debug|ARM64''"]/msb:ClCompile/msb:PreprocessorDefinitions', $ns)
+                $node.InnerText = "__ARM_NEON;" + $node.InnerText
+                $node = $xml.SelectSingleNode('//msb:ItemDefinitionGroup[@Condition="''$(Configuration)|$(Platform)''==''Debug|ARM64''"]/msb:ResourceCompile/msb:PreprocessorDefinitions', $ns)
+                $node.InnerText = "__ARM_NEON;" + $node.InnerText
+                $node = $xml.SelectSingleNode('//msb:PropertyGroup[@Condition="''$(Configuration)|$(Platform)''==''Debug|ARM64''"]/msb:PreferredToolArchitecture', $ns)
+                $node.InnerText = "arm64"
+                $node = $xml.SelectSingleNode('//msb:ItemDefinitionGroup[@Condition="''$(Configuration)|$(Platform)''==''Release|ARM64''"]/msb:ClCompile/msb:PreprocessorDefinitions', $ns)
+                $node.InnerText = "__ARM_NEON;" + $node.InnerText
+                $node = $xml.SelectSingleNode('//msb:ItemDefinitionGroup[@Condition="''$(Configuration)|$(Platform)''==''Release|ARM64''"]/msb:ResourceCompile/msb:PreprocessorDefinitions', $ns)
+                $node.InnerText = "__ARM_NEON;" + $node.InnerText
+                $node = $xml.SelectSingleNode('//msb:PropertyGroup[@Condition="''$(Configuration)|$(Platform)''==''Release|ARM64''"]/msb:PreferredToolArchitecture', $ns)
+                $node.InnerText = "arm64"
+                $xml.Save("./SoloudStatic.vcxproj")
+                msbuild SoloudStatic.vcxproj /p:Configuration=Debug /p:Platform=ARM64
+                msbuild SoloudStatic.vcxproj /p:Configuration=Release /p:Platform=ARM64
 
           - name: Compress Product
             shell: pwsh
