@@ -55,8 +55,7 @@ jobs:
           - name: Build Linux x64
             shell: bash
             run: |
-                ls
-                cd soloud-${{inputs.tag-name}}/Build
+                cd soloud-${{inputs.tag-name}}/build
                 ./genie --with-jack --platform=x64 ninja
                 cd ninja
                 ninja -C debug64 SoloudStatic
