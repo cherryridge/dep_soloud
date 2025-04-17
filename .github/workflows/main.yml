@@ -109,19 +109,37 @@ jobs:
             contents: write
         steps:
 
-          - name: Download Artifact soloud_windows_x64
+          - name: Download Artifact soloud_windows
             uses: actions/download-artifact@v4
             with:
-                name: soloud_windows_x64
-                path: soloud_windows_x64
+                name: soloud_windows
+                path: soloud_windows
                 github-token: ${{github.token}}
                 repository: ${{github.repository}}
                 run-id: ${{needs.build-windows.outputs.runid}}
 
+          - name: Download Artifact soloud_linux
+            uses: actions/download-artifact@v4
+            with:
+                name: soloud_linux
+                path: soloud_linux
+                github-token: ${{github.token}}
+                repository: ${{github.repository}}
+                run-id: ${{needs.build-linux.outputs.runid}}
+
+          - name: Download Artifact soloud_macos
+            uses: actions/download-artifact@v4
+            with:
+                name: soloud_macos
+                path: soloud_macos
+                github-token: ${{github.token}}
+                repository: ${{github.repository}}
+                run-id: ${{needs.build-macos.outputs.runid}}
+
           - name: Release Artifacts
             uses: ncipollo/release-action@v1.16.0
             with:
-                artifacts: soloud_windows_x64/soloud_windows_x64_debug.7z, soloud_windows_x64/soloud_windows_x64_release.7z, soloud_windows_arm64/soloud_windows_arm64_debug.7z, soloud_windows_arm64/soloud_windows_arm64_release.7z, soloud_linux_x64/soloud_linux_x64_debug.7z, soloud_linux_x64/soloud_linux_x64_release.7z,soloud_linux_arm64/soloud_linux_arm64_debug.7z, soloud_linux_arm64/soloud_linux_arm64_release.7z, soloud_macos_x64/soloud_macos_x64_debug.7z, soloud_macos_x64/soloud_macos_x64_release.7z, soloud_macos_arm64/soloud_macos_arm64_debug.7z, soloud_macos_arm64/soloud_macos_arm64_release.7z
+                artifacts: soloud_windows/soloud_windows_x64_debug.7z, soloud_windows/soloud_windows_x64_release.7z, soloud_windows/soloud_windows_arm64_debug.7z, soloud_windows/soloud_windows_arm64_release.7z, soloud_linux/soloud_linux_x64_debug.7z, soloud_linux/soloud_linux_x64_release.7z,soloud_linux/soloud_linux_arm64_debug.7z, soloud_linux/soloud_linux_arm64_release.7z, soloud_macos/soloud_macos_x64_debug.7z, soloud_macos/soloud_macos_x64_release.7z, soloud_macos/soloud_macos_arm64_debug.7z, soloud_macos/soloud_macos_arm64_release.7z
                 commit: ${{needs.update-version.outputs.updated_commit}}
                 tag: ${{needs.check.outputs.latest_version}}
                 body: Build for version ${{needs.check.outputs.latest_version}}.
