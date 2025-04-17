@@ -20,11 +20,6 @@ jobs:
         runs-on: macos-latest
         steps:
 
-          - name: Checkout This Repo
-            uses: actions/checkout@v4
-            with:
-                ref: main
-
           - name: Checkout SoLoud Source Code
             shell: bash
             run: |
