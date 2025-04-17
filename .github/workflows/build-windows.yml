@@ -16,7 +16,7 @@ on:
                 required: true
 
 jobs:
-    x64:
+    build:
         runs-on: windows-latest
         steps:
 
@@ -96,11 +96,13 @@ jobs:
                 cp -r soloud-${{inputs.tag-name}}\include\* temp\include\soloud
                 7z a soloud_windows_x64_debug.7z .\soloud-${{inputs.tag-name}}\lib\soloud_static_x64_d.lib .\soloud-${{inputs.tag-name}}\lib\soloud_static_x64_d.pdb .\temp\include VERSION.txt
                 7z a soloud_windows_x64_release.7z .\soloud-${{inputs.tag-name}}\lib\soloud_static_x64.lib .\temp\include VERSION.txt
+                7z a soloud_windows_arm64_debug.7z .\soloud-${{inputs.tag-name}}\lib\soloud_static_arm64_d.lib .\soloud-${{inputs.tag-name}}\lib\soloud_static_arm64_d.pdb .\temp\include VERSION.txt
+                7z a soloud_windows_arm64_release.7z .\soloud-${{inputs.tag-name}}\lib\soloud_static_arm64.lib .\temp\include VERSION.txt
 
           - name: Upload Archive
             uses: actions/upload-artifact@v4
             with:
-                name: soloud_windows_x64
+                name: soloud_windows
                 path: |
                     *.7z
                 retention-days: 7

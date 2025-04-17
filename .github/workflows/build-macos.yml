@@ -71,13 +71,7 @@ jobs:
           - name: Upload Archive x64
             uses: actions/upload-artifact@v4
             with:
-                name: soloud_macos_x64
-                path: soloud_macos_x64*.7z
-                retention-days: 7
-
-          - name: Upload Archive arm64
-            uses: actions/upload-artifact@v4
-            with:
-                name: soloud_macos_arm64
-                path: soloud_macos_arm64*.7z
+                name: soloud_macos
+                path: |
+                    *.7z
                 retention-days: 7

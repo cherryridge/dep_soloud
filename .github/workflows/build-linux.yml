@@ -16,7 +16,7 @@ on:
                 required: true
 
 jobs:
-    x64:
+    build:
         runs-on: ubuntu-latest
         steps:
 
@@ -31,25 +31,40 @@ jobs:
                 curl -LO "https://github.com/jarikomppa/soloud/archive/refs/tags/${{inputs.tag-name}}.zip"
                 unzip ${{inputs.tag-name}}.zip
 
-          - name: Download GENie and Generate Build Files
+          - name: Download GENie
             shell: bash
             run: |
                 cd soloud-${{inputs.tag-name}}/build
                 curl -LO "https://github.com/bkaradzic/bx/raw/master/tools/bin/linux/genie"
                 chmod +x genie
-                ./genie --with-jack --platform=x64 ninja
 
           - name: Install Dependencies
             shell: bash
             run: |
+                sudo dpkg --add-architecture arm64
+                sudo apt update
                 sudo apt install libasound2-dev libjack-jackd2-dev
 
           - name: Build Linux x64
             shell: bash
             run: |
-                cd soloud-${{inputs.tag-name}}/build/ninja
+                cd soloud-${{inputs.tag-name}}/Build
+                ./genie --with-jack --platform=x64 ninja
+                cd ninja
                 ninja -C debug64 SoloudStatic
                 ninja -C release64 SoloudStatic
+
+          - name: Build Linux arm64
+            shell: bash
+            run: |
+                cd soloud-${{inputs.tag-name}}/build
+                ./genie --with-jack --platform=ARM64 gmake
+                cd gmake
+                sed -i 's/-msse4\.1//g' SoloudStatic.make
+                make -f SoloudStatic.make config=debug CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++
+                mv ../../lib/libsoloud_static.a ../../lib/libsoloud_static_arm64_d.a
+                make -f SoloudStatic.make config=release CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++
+                mv ../../lib/libsoloud_static.a ../../lib/libsoloud_static_arm64.a
 
           - name: Compress Product
             shell: bash
@@ -59,11 +74,13 @@ jobs:
                 cp -a soloud-${{inputs.tag-name}}/include/* temp/include/soloud
                 7z a soloud_linux_x64_debug.7z ./soloud-${{inputs.tag-name}}/lib/libsoloud_static_x64_d.a ./temp/include VERSION.txt
                 7z a soloud_linux_x64_release.7z ./soloud-${{inputs.tag-name}}/lib/libsoloud_static_x64.a ./temp/include VERSION.txt
+                7z a soloud_linux_arm64_debug.7z ./soloud-${{inputs.tag-name}}/lib/libsoloud_static_arm64_d.a ./temp/include VERSION.txt
+                7z a soloud_linux_arm64_release.7z ./soloud-${{inputs.tag-name}}/lib/libsoloud_static_arm64.a ./temp/include VERSION.txt
 
           - name: Upload Archive
             uses: actions/upload-artifact@v4
             with:
-                name: soloud_linux_x64
+                name: soloud_linux
                 path: |
                     *.7z
                 retention-days: 7
