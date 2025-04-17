@@ -42,6 +42,7 @@ jobs:
             shell: bash
             run: |
                 sudo dpkg --add-architecture arm64
+                sudo sed -ri '/^Components:/a Architectures: amd64 arm64' "/etc/apt/sources.list.d/ubuntu.sources"
                 sudo tee /etc/apt/sources.list.d/ubuntu-ports.list >/dev/null <<'EOF'
                     deb [arch=arm64 signed-by=/usr/share/keyrings/ubuntu-archive-keyring.gpg] http://ports.ubuntu.com/ubuntu-ports noble main universe restricted multiverse
                     deb [arch=arm64 signed-by=/usr/share/keyrings/ubuntu-archive-keyring.gpg] http://ports.ubuntu.com/ubuntu-ports noble-updates main universe restricted multiverse
