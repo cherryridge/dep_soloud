@@ -41,11 +41,13 @@ jobs:
           - name: Install Dependencies
             shell: bash
             run: |
-                sudo deb [arch=armhf,arm64] http://ports.ubuntu.com/ubuntu-ports/ noble main universe restricted multiverse
-                sudo deb [arch=armhf,arm64] http://ports.ubuntu.com/ubuntu-ports/ noble-updates main universe restricted multiverse
-                sudo deb [arch=armhf,arm64] http://ports.ubuntu.com/ubuntu-ports/ noble-backports main universe restricted multiverse
-                sudo deb [arch=armhf,arm64] http://ports.ubuntu.com/ubuntu-ports/ noble-security main universe restricted multiverse
                 sudo dpkg --add-architecture arm64
+                sudo tee /etc/apt/sources.list.d/ubuntu-ports.list >/dev/null <<'EOF'
+                    deb [arch=arm64 signed-by=/usr/share/keyrings/ubuntu-archive-keyring.gpg] http://ports.ubuntu.com/ubuntu-ports noble main universe restricted multiverse
+                    deb [arch=arm64 signed-by=/usr/share/keyrings/ubuntu-archive-keyring.gpg] http://ports.ubuntu.com/ubuntu-ports noble-updates main universe restricted multiverse
+                    deb [arch=arm64 signed-by=/usr/share/keyrings/ubuntu-archive-keyring.gpg] http://ports.ubuntu.com/ubuntu-ports noble-backports main universe restricted multiverse
+                    deb [arch=arm64 signed-by=/usr/share/keyrings/ubuntu-archive-keyring.gpg] http://ports.ubuntu.com/ubuntu-ports noble-security main universe restricted multiverse
+                EOF
                 sudo apt update
                 sudo apt install libasound2-dev libjack-jackd2-dev
 
