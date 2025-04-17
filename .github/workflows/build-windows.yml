@@ -68,15 +68,23 @@ jobs:
                 $node.InnerText = "__ARM_NEON;" + $node.InnerText
                 $node = $xml.SelectSingleNode('//msb:ItemDefinitionGroup[@Condition="''$(Configuration)|$(Platform)''==''Debug|ARM64''"]/msb:ResourceCompile/msb:PreprocessorDefinitions', $ns)
                 $node.InnerText = "__ARM_NEON;" + $node.InnerText
-                $node = $xml.SelectSingleNode('//msb:PropertyGroup[@Condition="''$(Configuration)|$(Platform)''==''Debug|ARM64''"]/msb:PreferredToolArchitecture', $ns)
-                $node.InnerText = "arm64"
                 $node = $xml.SelectSingleNode('//msb:ItemDefinitionGroup[@Condition="''$(Configuration)|$(Platform)''==''Release|ARM64''"]/msb:ClCompile/msb:PreprocessorDefinitions', $ns)
                 $node.InnerText = "__ARM_NEON;" + $node.InnerText
                 $node = $xml.SelectSingleNode('//msb:ItemDefinitionGroup[@Condition="''$(Configuration)|$(Platform)''==''Release|ARM64''"]/msb:ResourceCompile/msb:PreprocessorDefinitions', $ns)
                 $node.InnerText = "__ARM_NEON;" + $node.InnerText
-                $node = $xml.SelectSingleNode('//msb:PropertyGroup[@Condition="''$(Configuration)|$(Platform)''==''Release|ARM64''"]/msb:PreferredToolArchitecture', $ns)
-                $node.InnerText = "arm64"
-                $xml.Save("./SoloudStatic.vcxproj")
+                $node = $xml.SelectSingleNode('//msb:PropertyGroup[@Condition="''$(Configuration)|$(Platform)''==''Debug|ARM64''" and not(@Label)]/msb:TargetName', $ns)
+                $node.InnerText = "soloud_static_arm64_d"
+                $node = $xml.SelectSingleNode('//msb:PropertyGroup[@Condition="''$(Configuration)|$(Platform)''==''Release|ARM64''" and not(@Label)]/msb:TargetName', $ns)
+                $node.InnerText = "soloud_static_arm64"
+                $node = $xml.SelectSingleNode('//msb:ItemDefinitionGroup[@Condition="''$(Configuration)|$(Platform)''==''Debug|ARM64''"]/msb:ClCompile/msb:ProgramDataBaseFileName', $ns)
+                $node.InnerText = '$(OutDir)soloud_static_arm64_d.pdb'
+                $node = $xml.SelectSingleNode('//msb:ItemDefinitionGroup[@Condition="''$(Configuration)|$(Platform)''==''Debug|ARM64''"]/msb:Lib/msb:OutputFile', $ns)
+                $node.InnerText = '$(OutDir)soloud_static_arm64_d.lib'
+                $node = $xml.SelectSingleNode('//msb:ItemDefinitionGroup[@Condition="''$(Configuration)|$(Platform)''==''Debug|ARM64''"]/msb:Link/msb:ProgramDatabaseFile', $ns)
+                $node.InnerText = '$(OutDir)soloud_static_arm64_d.pdb'
+                $node = $xml.SelectSingleNode('//msb:ItemDefinitionGroup[@Condition="''$(Configuration)|$(Platform)''==''Release|ARM64''"]/msb:Lib/msb:OutputFile', $ns)
+                $node.InnerText = '$(OutDir)soloud_static_arm64.lib'
+                $xml.Save("$pwd\SoloudStatic.vcxproj")
                 msbuild SoloudStatic.vcxproj /p:Configuration=Debug /p:Platform=ARM64
                 msbuild SoloudStatic.vcxproj /p:Configuration=Release /p:Platform=ARM64
 
