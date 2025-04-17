@@ -121,7 +121,7 @@ jobs:
           - name: Release Artifacts
             uses: ncipollo/release-action@v1.16.0
             with:
-                artifacts: soloud_windows_x64/soloud_windows_x64_debug.7z, soloud_windows_x64/soloud_windows_x64_release.7z, soloud_linux_x64/soloud_linux_x64_debug.7z, soloud_linux_x64/soloud_linux_x64_release.7z, soloud_macos_x64/soloud_macos_x64_debug.7z, soloud_macos_x64/soloud_macos_x64_release.7z
+                artifacts: soloud_windows_x64/soloud_windows_x64_debug.7z, soloud_windows_x64/soloud_windows_x64_release.7z, soloud_windows_arm64/soloud_windows_arm64_debug.7z, soloud_windows_arm64/soloud_windows_arm64_release.7z, soloud_linux_x64/soloud_linux_x64_debug.7z, soloud_linux_x64/soloud_linux_x64_release.7z,soloud_linux_arm64/soloud_linux_arm64_debug.7z, soloud_linux_arm64/soloud_linux_arm64_release.7z, soloud_macos_x64/soloud_macos_x64_debug.7z, soloud_macos_x64/soloud_macos_x64_release.7z, soloud_macos_arm64/soloud_macos_arm64_debug.7z, soloud_macos_arm64/soloud_macos_arm64_release.7z
                 commit: ${{needs.update-version.outputs.updated_commit}}
                 tag: ${{needs.check.outputs.latest_version}}
                 body: Build for version ${{needs.check.outputs.latest_version}}.
