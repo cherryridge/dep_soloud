@@ -1,5 +1,8 @@
 ﻿name: Main Task
 
+permissions:
+    contents: write
+
 on:
     schedule:
         - cron: "0 11 */7 * *"
