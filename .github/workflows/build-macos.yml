@@ -3,7 +3,7 @@
 on:
     workflow_call:
         inputs:
-            tag-name:
+            commit:
                 type: string
                 required: true
         outputs:
@@ -11,8 +11,9 @@ on:
                 value: ${{github.run_id}}
     workflow_dispatch:
         inputs:
-            tag-name:
+            commit:
                 type: string
+                description: Target commit
                 required: true
 
 jobs:
@@ -20,16 +21,16 @@ jobs:
         runs-on: macos-latest
         steps:
 
-          - name: Checkout SoLoud Source Code
-            shell: bash
-            run: |
-                curl -LO "https://github.com/jarikomppa/soloud/archive/refs/tags/${{inputs.tag-name}}.zip"
-                unzip ${{inputs.tag-name}}.zip
+          - name: Checkout SoLoud
+            uses: actions/checkout@v4
+            with:
+                repository: jarikomppa/soloud
+                path: soloud
 
           - name: Download GENie and Generate Build Files
             shell: bash
             run: |
-                cd soloud-${{inputs.tag-name}}/build
+                cd soloud/build
                 curl -LO "https://github.com/bkaradzic/bx/raw/master/tools/bin/darwin/genie"
                 chmod +x genie
                 ./genie --with-coreaudio xcode15
@@ -37,7 +38,7 @@ jobs:
           - name: Build MacOS x64
             shell: bash
             run: |
-                cd soloud-${{inputs.tag-name}}/build/xcode15
+                cd soloud/build/xcode15
                 xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Debug ARCHS=x86_64 clean build
                 mv ../../lib/libsoloud_static.a ../../libsoloud_static_x64_d.a
                 xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Release ARCHS=x86_64 clean build
@@ -46,7 +47,7 @@ jobs:
           - name: Build MacOS arm64
             shell: bash
             run: |
-                cd soloud-${{inputs.tag-name}}/build/xcode15
+                cd soloud/build/xcode15
                 xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Debug ARCHS=arm64 clean build
                 mv ../../lib/libsoloud_static.a ../../libsoloud_static_arm64_d.a
                 xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Release ARCHS=arm64 clean build
@@ -55,13 +56,13 @@ jobs:
           - name: Compress Product
             shell: bash
             run: |
-                echo ${{inputs.tag-name}} >> VERSION.txt
+                echo ${{inputs.commit}} >> VERSION.txt
                 mkdir -p temp/include/soloud
-                cp -a soloud-${{inputs.tag-name}}/include/* temp/include/soloud
-                7z a soloud_macos_x64_debug.7z ./soloud-${{inputs.tag-name}}/libsoloud_static_x64_d.a ./temp/include VERSION.txt
-                7z a soloud_macos_x64_release.7z ./soloud-${{inputs.tag-name}}/libsoloud_static_x64.a ./temp/include VERSION.txt
-                7z a soloud_macos_arm64_debug.7z ./soloud-${{inputs.tag-name}}/libsoloud_static_arm64_d.a ./temp/include VERSION.txt
-                7z a soloud_macos_arm64_release.7z ./soloud-${{inputs.tag-name}}/libsoloud_static_arm64.a ./temp/include VERSION.txt
+                cp -a soloud/include/* temp/include/soloud
+                7z a soloud_macos_x64_debug.7z ./soloud/libsoloud_static_x64_d.a ./temp/include VERSION.txt
+                7z a soloud_macos_x64_release.7z ./soloud/libsoloud_static_x64.a ./temp/include VERSION.txt
+                7z a soloud_macos_arm64_debug.7z ./soloud/libsoloud_static_arm64_d.a ./temp/include VERSION.txt
+                7z a soloud_macos_arm64_release.7z ./soloud/libsoloud_static_arm64.a ./temp/include VERSION.txt
 
           - name: Upload Archive x64
             uses: actions/upload-artifact@v4

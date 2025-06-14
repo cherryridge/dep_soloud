@@ -3,7 +3,7 @@
 on:
     workflow_call:
         inputs:
-            tag-name:
+            commit:
                 type: string
                 required: true
         outputs:
@@ -11,8 +11,9 @@ on:
                 value: ${{github.run_id}}
     workflow_dispatch:
         inputs:
-            tag-name:
+            commit:
                 type: string
+                description: Target commit
                 required: true
 
 jobs:
@@ -20,16 +21,16 @@ jobs:
         runs-on: ubuntu-latest
         steps:
 
-          - name: Checkout SoLoud Source Code
-            shell: bash
-            run: |
-                curl -LO "https://github.com/jarikomppa/soloud/archive/refs/tags/${{inputs.tag-name}}.zip"
-                unzip ${{inputs.tag-name}}.zip
+          - name: Checkout SoLoud
+            uses: actions/checkout@v4
+            with:
+                repository: jarikomppa/soloud
+                path: soloud
 
           - name: Download GENie
             shell: bash
             run: |
-                cd soloud-${{inputs.tag-name}}/build
+                cd soloud/build
                 curl -LO "https://github.com/bkaradzic/bx/raw/master/tools/bin/linux/genie"
                 chmod +x genie
 
@@ -50,7 +51,7 @@ jobs:
           - name: Build Linux x64
             shell: bash
             run: |
-                cd soloud-${{inputs.tag-name}}/build
+                cd soloud/build
                 ./genie --with-jack --platform=x64 ninja
                 cd ninja
                 ninja -C debug64 SoloudStatic
@@ -59,7 +60,7 @@ jobs:
           - name: Build Linux arm64
             shell: bash
             run: |
-                cd soloud-${{inputs.tag-name}}/build
+                cd soloud/build
                 ./genie --with-jack --platform=ARM64 gmake
                 cd gmake
                 sed -i 's/-msse4\.1//g' SoloudStatic.make
@@ -71,13 +72,13 @@ jobs:
           - name: Compress Product
             shell: bash
             run: |
-                echo ${{inputs.tag-name}} >> VERSION.txt
+                echo ${{inputs.commit}} >> VERSION.txt
                 mkdir -p temp/include/soloud
-                cp -a soloud-${{inputs.tag-name}}/include/* temp/include/soloud
-                7z a soloud_linux_x64_debug.7z ./soloud-${{inputs.tag-name}}/lib/libsoloud_static_x64_d.a ./temp/include VERSION.txt
-                7z a soloud_linux_x64_release.7z ./soloud-${{inputs.tag-name}}/lib/libsoloud_static_x64.a ./temp/include VERSION.txt
-                7z a soloud_linux_arm64_debug.7z ./soloud-${{inputs.tag-name}}/lib/libsoloud_static_arm64_d.a ./temp/include VERSION.txt
-                7z a soloud_linux_arm64_release.7z ./soloud-${{inputs.tag-name}}/lib/libsoloud_static_arm64.a ./temp/include VERSION.txt
+                cp -a soloud/include/* temp/include/soloud
+                7z a soloud_linux_x64_debug.7z ./soloud/lib/libsoloud_static_x64_d.a ./temp/include VERSION.txt
+                7z a soloud_linux_x64_release.7z ./soloud/lib/libsoloud_static_x64.a ./temp/include VERSION.txt
+                7z a soloud_linux_arm64_debug.7z ./soloud/lib/libsoloud_static_arm64_d.a ./temp/include VERSION.txt
+                7z a soloud_linux_arm64_release.7z ./soloud/lib/libsoloud_static_arm64.a ./temp/include VERSION.txt
 
           - name: Upload Archive
             uses: actions/upload-artifact@v4
