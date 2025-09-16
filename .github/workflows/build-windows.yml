@@ -36,6 +36,12 @@ jobs:
                 cd soloud\build
                 Invoke-WebRequest -Uri "https://github.com/bkaradzic/bx/raw/master/tools/bin/windows/genie.exe" -OutFile "genie.exe"
 
+          - name: Patch genie.lua
+            shell: pwsh
+            run: |
+                cd soloud\build
+                (Get-Content genie.lua) | ForEach-Object { $_ -replace '"?NoRTTI"?,?\s*', '' } | Set-Content genie.lua
+
           - name: Build Windows x64
             shell: pwsh
             run: |

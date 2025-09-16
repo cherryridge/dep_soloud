@@ -35,6 +35,12 @@ jobs:
                 chmod +x genie
                 ./genie --with-coreaudio xcode15
 
+          - name: Patch genie.lua
+            shell: bash
+            run: |
+                cd soloud/build
+                sed -E -i -e 's/"?NoRTTI"?,?[[:space:]]*//g' genie.lua
+
           - name: Build MacOS x64
             shell: bash
             run: |
