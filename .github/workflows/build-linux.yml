@@ -46,7 +46,7 @@ jobs:
                     deb [arch=arm64 signed-by=/usr/share/keyrings/ubuntu-archive-keyring.gpg] http://ports.ubuntu.com/ubuntu-ports noble-security main universe restricted multiverse
                 EOF
                 sudo apt update
-                sudo apt install g++-aarch64-linux-gnu libasound2-dev libjack-jackd2-dev
+                sudo apt install clang llvm g++-aarch64-linux-gnu libasound2-dev libjack-jackd2-dev
 
           - name: Patch genie.lua
             shell: bash
@@ -58,10 +58,10 @@ jobs:
             shell: bash
             run: |
                 cd soloud/build
-                ./genie --with-jack --platform=x64 ninja
-                cd ninja
-                ninja -C debug64 SoloudStatic
-                ninja -C release64 SoloudStatic
+                ./genie --with-jack --platform=x64 gmake
+                cd gmake
+                make -j$(nproc) -f SoloudStatic.make config=debug64 CC=clang CXX=clang++
+                make -j$(nproc) -f SoloudStatic.make config=release64 CC=clang CXX=clang++
 
           - name: Build Linux arm64
             shell: bash
@@ -70,9 +70,9 @@ jobs:
                 ./genie --with-jack --platform=ARM64 gmake
                 cd gmake
                 sed -i 's/-msse4\.1//g' SoloudStatic.make
-                make -f SoloudStatic.make config=debug CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++
+                make -j$(nproc) -f SoloudStatic.make config=debug CC="clang -target aarch64-linux-gnu" CXX="clang++ -target aarch64-linux-gnu"
                 mv ../../lib/libsoloud_static.a ../../lib/libsoloud_static_arm64_d.a
-                make -f SoloudStatic.make config=release CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++
+                make -j$(nproc) -f SoloudStatic.make config=release CC="clang -target aarch64-linux-gnu" CXX="clang++ -target aarch64-linux-gnu"
                 mv ../../lib/libsoloud_static.a ../../lib/libsoloud_static_arm64.a
 
           - name: Compress Product

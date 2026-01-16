@@ -48,8 +48,8 @@ jobs:
                 cd soloud\build
                 .\genie --with-xaudio2 --with-wasapi --platform=x64 vs2022
                 cd vs2022
-                msbuild SoloudStatic.vcxproj /p:Configuration=Debug /p:Platform=x64
-                msbuild SoloudStatic.vcxproj /p:Configuration=Release /p:Platform=x64
+                msbuild SoloudStatic.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:PlatformToolset=ClangCL /p:UseLldLink=true
+                msbuild SoloudStatic.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=ClangCL /p:UseLldLink=true
 
           - name: Patch dr_mp3.h
             shell: pwsh
@@ -87,8 +87,8 @@ jobs:
                 $node = $xml.SelectSingleNode('//msb:ItemDefinitionGroup[@Condition="''$(Configuration)|$(Platform)''==''Release|ARM64''"]/msb:Lib/msb:OutputFile', $ns)
                 $node.InnerText = '$(OutDir)soloud_static_arm64.lib'
                 $xml.Save("$pwd\SoloudStatic.vcxproj")
-                msbuild SoloudStatic.vcxproj /p:Configuration=Debug /p:Platform=ARM64
-                msbuild SoloudStatic.vcxproj /p:Configuration=Release /p:Platform=ARM64
+                msbuild SoloudStatic.vcxproj /p:Configuration=Debug /p:Platform=ARM64 /p:PlatformToolset=ClangCL /p:UseLldLink=true
+                msbuild SoloudStatic.vcxproj /p:Configuration=Release /p:Platform=ARM64 /p:PlatformToolset=ClangCL /p:UseLldLink=true
 
           - name: Compress Product
             shell: pwsh
@@ -96,9 +96,9 @@ jobs:
                 echo ${{inputs.commit}} >> VERSION.txt
                 mkdir temp\include\soloud
                 cp -r soloud\include\* temp\include\soloud
-                7z a soloud_windows_x64_debug.7z .\soloud\lib\soloud_static_x64_d.lib .\soloud\lib\soloud_static_x64_d.pdb .\temp\include VERSION.txt
+                7z a soloud_windows_x64_debug.7z .\soloud\lib\soloud_static_x64_d.lib .\temp\include VERSION.txt
                 7z a soloud_windows_x64_release.7z .\soloud\lib\soloud_static_x64.lib .\temp\include VERSION.txt
-                7z a soloud_windows_arm64_debug.7z .\soloud\lib\soloud_static_arm64_d.lib .\soloud\lib\soloud_static_arm64_d.pdb .\temp\include VERSION.txt
+                7z a soloud_windows_arm64_debug.7z .\soloud\lib\soloud_static_arm64_d.lib .\temp\include VERSION.txt
                 7z a soloud_windows_arm64_release.7z .\soloud\lib\soloud_static_arm64.lib .\temp\include VERSION.txt
 
           - name: Upload Archive
