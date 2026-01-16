@@ -51,12 +51,6 @@ jobs:
                 msbuild SoloudStatic.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:PlatformToolset=ClangCL /p:UseLldLink=true
                 msbuild SoloudStatic.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=ClangCL /p:UseLldLink=true
 
-          - name: Patch dr_mp3.h
-            shell: pwsh
-            run: |
-                cd soloud\src\audiosource\wav
-                (Get-Content "dr_mp3.h" -Raw) -replace 'static\s+const\s+drmp3_f4\s+g_scale\s*=\s*\{[^}]+\};', "const float _arm_fix_temp[4] = { 1.0f / 32768.0f, 1.0f / 32768.0f, 1.0f / 32768.0f, 1.0f / 32768.0f }; static const drmp3_f4 g_scale; memcpy((void*)&g_scale.n128_f32, _arm_fix_temp, sizeof(g_scale.n128_f32));" | Set-Content "dr_mp3.h"
-
           - name: Build Windows arm64
             shell: pwsh
             run: |
