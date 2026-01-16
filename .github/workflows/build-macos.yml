@@ -46,18 +46,18 @@ jobs:
             run: |
                 cd soloud/build/xcode15
                 xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Debug ARCHS=x86_64 clean build
-                mv ../../lib/libsoloud_static.a ../../libsoloud_static_x64_d.a
+                mv libsoloud_static.a ../../libsoloud_static_x64_d.a
                 xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Release ARCHS=x86_64 clean build
-                mv ../../lib/libsoloud_static.a ../../libsoloud_static_x64.a
+                mv libsoloud_static.a ../../libsoloud_static_x64.a
 
           - name: Build MacOS arm64
             shell: bash
             run: |
                 cd soloud/build/xcode15
                 xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Debug ARCHS=arm64 clean build
-                mv ../../lib/libsoloud_static.a ../../libsoloud_static_arm64_d.a
+                mv libsoloud_static.a ../../libsoloud_static_arm64_d.a
                 xcodebuild -project SoloudStatic.xcodeproj -scheme SoloudStatic -configuration Release ARCHS=arm64 clean build
-                mv ../../lib/libsoloud_static.a ../../libsoloud_static_arm64.a
+                mv libsoloud_static.a ../../libsoloud_static_arm64.a
 
           - name: Compress Product
             shell: bash
