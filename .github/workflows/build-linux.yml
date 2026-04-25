@@ -58,7 +58,7 @@ jobs:
             shell: bash
             run: |
                 cd soloud/build
-                ./genie --with-jack --platform=x64 gmake
+                ./genie --platform=x64 gmake
                 cd gmake
                 make -j$(nproc) -f SoloudStatic.make config=debug64 CC=clang CXX=clang++
                 make -j$(nproc) -f SoloudStatic.make config=release64 CC=clang CXX=clang++
@@ -67,7 +67,7 @@ jobs:
             shell: bash
             run: |
                 cd soloud/build
-                ./genie --with-jack --platform=ARM64 gmake
+                ./genie --platform=ARM64 gmake
                 cd gmake
                 sed -i 's/-msse4\.1//g' SoloudStatic.make
                 make -j$(nproc) -f SoloudStatic.make config=debug CC="clang -target aarch64-linux-gnu" CXX="clang++ -target aarch64-linux-gnu"
